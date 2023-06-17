@@ -1,0 +1,68 @@
+﻿@page "/person/add"
+@page "/person/edit/{userId:int}"
+@using Services
+@inject IPersonService personService
+<PageTitle>@Title</PageTitle>
+
+<h3>@Title</h3>
+<a href="/persons" class="btn btn-outline-dark">Show All</a>
+<div class="row">
+         <div class="col-md-6">
+             <EditForm Model="@person" OnValidSubmit="Save">
+                 <DataAnnotationsValidator/>
+                 <div class="form-group">
+                     <label for="Name">Name</label>
+                     <InputText class="form-control" @bind-Value="person.Name"></InputText>
+                     <ValidationMessage For="@(()=>person.Name)"></ValidationMessage>
+                 </div>
+
+            <div class="form-group">
+                <label for="Email">Email</label>
+                <InputText class="form-control" @bind-Value="person.Email"></InputText>
+                <ValidationMessage For="@(()=>person.Email)"></ValidationMessage>
+            </div>
+             </EditForm>
+
+             <div class="my-2">
+            @message
+             </div>
+
+        <div class="my-2">
+           <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+
+         </div>
+</div>
+@code {
+
+    [Parameter]
+    public int UserID { get; set; }
+
+    private string message = string.Empty;
+
+    Models.Person person =new();
+    private string Title = "Add Person";
+    private void Save()
+    {
+        if (personService.AddUpdate(person))
+        {
+            message = "Successfully added";
+            person = new();
+        }
+        else
+        {
+            message = "Could not saved";
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (UserID > 0)
+        {
+            Title = "Update Person";
+            person = personService.FindById(UserID);
+        }
+
+        base.OnInitialized();
+    }
+}
